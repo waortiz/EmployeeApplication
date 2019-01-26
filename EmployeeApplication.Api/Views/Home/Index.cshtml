@@ -1,0 +1,104 @@
+﻿@model EmployeeApplication.Entities.Employee
+
+@{
+    ViewBag.Title = "Employees";
+}
+
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">Employees</div>
+    <div class="panel-body">
+        <form id="employees" method="POST">
+            <div class="row">
+                <div class="col-md-10">
+                    <input id="id" placeholder="Id of the employee" maxlength="10" class="form-control number" />
+                </div>
+                <div class="col-md-2">
+                    <input type="button" onclick="getEmployees()" value="Get Employees" class="btn btn-default" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-hover" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Contract type name</th>
+                                <th>Role id</th>
+                                <th>Rol name</th>
+                                <th>Annual salary</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    var employeeTable = $('#employeeTable').DataTable({
+        "searching": false,
+        "paging": false,
+        "info": false});
+
+    $('.number').keyup(function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    function getEmployees() {
+        var url = "/api/employees";
+        if ($('#id').val() != "") {
+            url = "/api/employees/" + $('#id').val();
+            $.ajax({
+                type: "GET",
+                url: url,
+                processData: false,
+                contentType: false,
+                success: function (employee) {
+                    employeeTable.clear().draw();
+                    if (employee != "") {
+                        var row = $('<tr><td>' + employee.id + '</td>' +
+                            '<td>' + employee.name + '</td>' +
+                            '<td>' + employee.contractTypeName + '</td>' +
+                            '<td>' + employee.roleId + '</td>' +
+                            '<td>' + employee.roleName + '</td>' +
+                            '<td>' + numeral(employee.annualSalary).format('$0,0') + '</td>' +
+                            '</tr>');
+                        employeeTable.row.add(row).draw();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                }
+            });
+        } else {
+            $.ajax({
+                type: "GET",
+                url: url,
+                processData: false,
+                contentType: false,
+                success: function (employees) {
+                    employeeTable.clear().draw();
+                    if (employees != "") {
+                        console.log(employees)
+                        for (var i = 0; i < employees.length; i++) {
+                            var row = $('<tr><td>' + employees[i].id + '</td>' +
+                                '<td>' + employees[i].name + '</td>' +
+                                '<td>' + employees[i].contractTypeName + '</td>' +
+                                '<td>' + employees[i].roleId + '</td>' +
+                                '<td>' + employees[i].roleName + '</td>' +
+                                '<td>' + numeral(employees[i].annualSalary).format('$0,0') + '</td>' +
+                                '</tr>');
+                            employeeTable.row.add(row).draw();
+                        }
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                }
+            });
+        }
+    }
+
+</script>
